@@ -1,21 +1,20 @@
 version: "3.9"
 
 services:
-  # ======== VPN 服务（WireGuard + udp2raw）========
   wg-vpn:
-    build: ./wg-server
+    build: ./wg-server               # 上面修正后的 Dockerfile
     container_name: wg-vpn
-    privileged: true                     # 需要 raw socket 权限
+    privileged: true                 # 允许 raw‑socket 与 iptables
     cap_add:
-      - NET_ADMIN                         # iptables、路由操作
-      - NET_RAW                           # raw socket 使用
-    network_mode: host                   # 使用宿主机网络栈（必须）
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: host               # 直接使用宿主机网络（必须）
     environment:
-      # 在 .env 中可统一管理
-      UDP2RAW_PASSWORD: ${UDP2RAW_PASSWORD}
+      UDP2RAW_PASSWORD: ${UDP2RAW_PASSWORD}   # 与客户端保持一致
     volumes:
-      - ./wg-data:/etc/wireguard         # 持久化 WG 配置 & 密钥
+      - ./wg-data:/etc/wireguard      # 持久化 wg0.conf、密钥
     restart: unless-stopped
+
 
   # ======== 可选的 Web 管理 UI ========
   wg-admin:
