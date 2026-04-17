@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>WireGuard 管理</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-4">
+  <h2 class="mb-4">当前 Peer（流量）</h2>
+  <table class="table table-sm table-hover">
+    <thead class="table-light"><tr>
+      <th>PublicKey</th><th>已发送 (B)</th><th>已接收 (B)</th><th>操作</th>
+    </tr></thead>
+    <tbody id="peer-table">
+      {% for p in peers %}
+      <tr>
+        <td style="font-family:monospace;">{{ p.public_key[:8] }}…{{ p.public_key[-8:] }}</td>
+        <td>{{ p.tx }}</td>
+        <td>{{ p.rx }}</td>
+        <td>
+          <button class="btn btn-sm btn-danger"
+                  onclick="deletePeer('{{ p.public_key }}')">删除</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <hr class="my-4">
+  <h4>新增 Peer</h4>
+  <div class="input-group mb-3" style="max-width:400px;">
+    <input id="new-name" type="text" class="form-control" placeholder="Peer 名称(可选)">
+    <button class="btn btn-primary" onclick="addPeer()">创建</button>
+  </div>
+
+<script>
+async function addPeer(){
+  const name = document.getElementById('new-name').value.trim()||'unnamed';
+  const resp = await fetch('/api/peer', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name})
+  });
+  if (resp.ok){ location.reload(); } else { alert('创建失败'); }
+}
+async function deletePeer(pub){
+  if(!confirm('确定要删除该 Peer？')) return;
+  const resp = await fetch(`/api/peer/${pub}`, {method:'DELETE'});
+  if (resp.ok){ location.reload(); } else { alert('删除失败'); }
+}
+</script>
+</body>
+</html>
