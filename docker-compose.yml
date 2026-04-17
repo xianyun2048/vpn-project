@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
 
-  # ======== 可选的 Web 管理 UI ========
+  #  Web 管理 UI
   wg-admin:
     build: ./wg-admin
     container_name: wg-admin
